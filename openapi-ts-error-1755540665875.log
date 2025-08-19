@@ -1,0 +1,8 @@
+[2025-08-18T18:11:05.876Z] Error: Request failed with status 200: 
+Stack:
+Error: Request failed with status 200: 
+    at Ai (/Users/suhani/pizza-website/node_modules/@hey-api/openapi-ts/dist/index.cjs:46:8025)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Promise.all (index 0)
+    at async u0 (/Users/suhani/pizza-website/node_modules/@hey-api/openapi-ts/dist/index.cjs:1342:6519)
+    at async start (/Users/suhani/pizza-website/node_modules/@hey-api/openapi-ts/bin/index.cjs:139:21)
