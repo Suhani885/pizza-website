@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '../components/ui/input'
 import { Label } from '../components/ui/label'
 import { useState } from 'react'
+import { coreLoginCreate } from '../services/api/gen/sdk.gen'
 
 export const Route = createFileRoute('/login')({
   component: RouteComponent,
@@ -28,15 +29,13 @@ function RouteComponent() {
     e.preventDefault()
 
     try {
-      // const response = await v1AdminAuthPost({
-      //   body: formData
-      // })
-      // if (response.data) {
-      //   router.navigate({ to: '/admin' })
-      // }
+      const response = await coreLoginCreate({
+        body: formData
+      })
       console.log('Login:', formData)
-      router.navigate({ to: '/admin' })
-      
+      if (response.data) {
+        router.navigate({ to: '/admin' })
+      }
     } catch (error) {
       console.error('Login failed:', error)
       alert('Login Failed')

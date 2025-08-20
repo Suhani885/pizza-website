@@ -70,7 +70,7 @@ function AdminComponent() {
       name: formData.name,
       description: formData.description,
       price: parseFloat(formData.price),
-      image: formData.image || 'https://images.unsplash.com/photo-1604382354936-07c5d9983bd3?w=400&h=300&fit=crop'
+      image: formData.image
     }
     setProducts(prev => [...prev, newProduct])
     setFormData({ name: '', description: '', price: '', image: '' })

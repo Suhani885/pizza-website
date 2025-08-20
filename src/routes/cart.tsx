@@ -3,54 +3,152 @@ import { Button } from '../components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
 import { Input } from '../components/ui/input'
 import { Minus, Plus, X, ArrowLeft, ShoppingBag } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+// import { v1CartGet, v1CartPut, v1CartDelete, v1OrdersPost } from '@/services/api/gen'
 
 export const Route = createFileRoute('/cart')({
   component: CartComponent,
 })
 
 function CartComponent() {
-  const [cartItems, setCartItems] = useState([
-    {
-      id: 1,
-      name: 'Margherita Supreme',
-      description: 'Fresh mozzarella, basil, and tomato sauce on our signature crust',
-      price: 18.99,
-      quantity: 2,
-      image: 'https://images.unsplash.com/photo-1604382354936-07c5d9983bd3?w=400&h=300&fit=crop',
-    },
-    {
-      id: 2,
-      name: 'Pepperoni Deluxe',
-      description: 'Premium pepperoni with extra cheese and our special spice blend',
-      price: 21.99,
-      quantity: 1,
-      image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400&h=300&fit=crop',
-    },
-    {
-      id: 4,
-      name: 'Meat Lovers',
-      description: 'Pepperoni, sausage, bacon, and ham with extra cheese',
-      price: 24.99,
-      quantity: 1,
-      image: 'https://images.unsplash.com/photo-1571407970349-bc81e7e96d47?w=400&h=300&fit=crop',
-    }
-  ])
+  const [cartItems, setCartItems] = useState([])
+  const [orderDetails, setOrderDetails] = useState({
+    fullName: '',
+    phoneNumber: '',
+    address: '',
+    city: '',
+    zipCode: ''
+  })
 
-  const updateQuantity = (id, newQuantity) => {
+  useEffect(() => {
+    fetchCartItems()
+  }, [])
+
+  const fetchCartItems = async () => {
+    try {
+      // const response = await v1CartGet()
+      // if (response.data) {
+      //   setCartItems(response.data.items || [])
+      // }
+      const fallbackCartItems = [
+        {
+          id: 1,
+          name: 'Margherita Supreme',
+          description: 'Fresh mozzarella, basil, and tomato sauce on our signature crust',
+          price: 18.99,
+          quantity: 2,
+          image: 'https://images.unsplash.com/photo-1604382354936-07c5d9983bd3?w=400&h=300&fit=crop',
+        },
+        {
+          id: 2,
+          name: 'Pepperoni Deluxe',
+          description: 'Premium pepperoni with extra cheese and our special spice blend',
+          price: 21.99,
+          quantity: 1,
+          image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400&h=300&fit=crop',
+        }
+      ]
+      setCartItems(fallbackCartItems)
+    } catch (error) {
+      console.error('Failed to fetch cart items:', error)
+    }
+  }
+
+  const updateQuantity = async (id, newQuantity) => {
     if (newQuantity <= 0) {
       removeItem(id)
       return
     }
-    setCartItems(items =>
-      items.map(item =>
-        item.id === id ? { ...item, quantity: newQuantity } : item
+    try {
+      // const response = await v1CartPut({
+      //   body: {
+      //     item_id: id,
+      //     quantity: newQuantity
+      //   }
+      // })
+      // if (response.data) {
+      //   setCartItems(items =>
+      //     items.map(item =>
+      //       item.id === id ? { ...item, quantity: newQuantity } : item
+      //     )
+      //   )
+      // }
+      setCartItems(items =>
+        items.map(item =>
+          item.id === id ? { ...item, quantity: newQuantity } : item
+        )
       )
-    )
+      console.log('Updated quantity for item:', id, 'to:', newQuantity)
+    } catch (error) {
+      console.error('Failed to update quantity:', error)
+      alert('Failed to update item quantity')
+    }
   }
 
-  const removeItem = (id) => {
-    setCartItems(items => items.filter(item => item.id !== id))
+  const removeItem = async (id) => {
+    try {
+      // const response = await v1CartDelete({
+      //   params: { item_id: id }
+      // })
+      // if (response.data) {
+      //   setCartItems(items => items.filter(item => item.id !== id))
+      // }
+      setCartItems(items => items.filter(item => item.id !== id))
+      console.log('Removed item:', id)
+    } catch (error) {
+      console.error('Failed to remove item:', error)
+      alert('Failed to remove item from cart')
+    }
+  }
+
+  const handleOrderDetailsChange = (e) => {
+    const { name, value } = e.target
+    setOrderDetails(prev => ({
+      ...prev,
+      [name]: value
+    }))
+  }
+
+  const placeOrder = async () => {
+    try {
+      const requiredFields = ['fullName', 'phoneNumber', 'address', 'city', 'zipCode']
+      const missingFields = requiredFields.filter(field => !orderDetails[field].trim())
+      if (missingFields.length > 0) {
+        alert('Please fill in all required fields')
+        return
+      }
+      // const response = await v1OrdersPost({
+      //   body: {
+      //     items: cartItems,
+      //     customer_details: orderDetails,
+      //     total: total
+      //   }
+      // })
+      // if (response.data) {
+      //   alert('Order placed successfully!')
+      //   setCartItems([])
+      //   setOrderDetails({
+      //     fullName: '',
+      //     phoneNumber: '',
+      //     address: '',
+      //     city: '',
+      //     zipCode: ''
+      //   })
+      // }
+      console.log('Placing order:', { items: cartItems, details: orderDetails, total })
+      alert('Order placed successfully!')
+      setCartItems([])
+      setOrderDetails({
+        fullName: '',
+        phoneNumber: '',
+        address: '',
+        city: '',
+        zipCode: ''
+      })
+    } catch (error) {
+      console.error('Failed to place order:', error)
+      alert('Failed to place order. Please try again.')
+    }
   }
 
   const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0)
@@ -184,6 +282,9 @@ function CartComponent() {
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-gray-700">Full Name</label>
                   <Input
+                    name="fullName"
+                    value={orderDetails.fullName}
+                    onChange={handleOrderDetailsChange}
                     placeholder="Enter your full name"
                     className="h-10 border-gray-300 focus:border-red-500 focus:ring-red-500"
                   />
@@ -192,6 +293,9 @@ function CartComponent() {
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-gray-700">Phone Number</label>
                   <Input
+                    name="phoneNumber"
+                    value={orderDetails.phoneNumber}
+                    onChange={handleOrderDetailsChange}
                     placeholder="Enter your phone number"
                     type="tel"
                     className="h-10 border-gray-300 focus:border-red-500 focus:ring-red-500"
@@ -201,6 +305,9 @@ function CartComponent() {
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-gray-700">Delivery Address</label>
                   <Input
+                    name="address"
+                    value={orderDetails.address}
+                    onChange={handleOrderDetailsChange}
                     placeholder="Street address"
                     className="h-10 border-gray-300 focus:border-red-500 focus:ring-red-500"
                   />
@@ -210,6 +317,9 @@ function CartComponent() {
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-gray-700">City</label>
                     <Input
+                      name="city"
+                      value={orderDetails.city}
+                      onChange={handleOrderDetailsChange}
                       placeholder="City"
                       className="h-10 border-gray-300 focus:border-red-500 focus:ring-red-500"
                     />
@@ -217,13 +327,14 @@ function CartComponent() {
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-gray-700">ZIP Code</label>
                     <Input
+                      name="zipCode"
+                      value={orderDetails.zipCode}
+                      onChange={handleOrderDetailsChange}
                       placeholder="ZIP"
                       className="h-10 border-gray-300 focus:border-red-500 focus:ring-red-500"
                     />
                   </div>
                 </div>
-                
-               
               </CardContent>
             </Card>
 
@@ -232,15 +343,26 @@ function CartComponent() {
                 <CardTitle className="text-xl font-bold text-gray-900">Order Summary</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                
+                <div className="flex justify-between text-gray-600">
+                  <span>Subtotal</span>
+                  <span>${subtotal.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-gray-600">
+                  <span>Delivery</span>
+                  <span>{delivery === 0 ? 'Free' : `$${delivery.toFixed(2)}`}</span>
+                </div>
+                <hr />
                 <div className="flex justify-between text-lg font-bold text-gray-900">
                   <span>Total</span>
                   <span>${total.toFixed(2)}</span>
                 </div>
                 
                 <div className="space-y-3 mt-6">
-                  <Button className="w-full h-12 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-semibold text-base shadow-lg hover:shadow-xl transition-all duration-200">
-                    Proceed to Checkout
+                  <Button 
+                    onClick={placeOrder}
+                    className="w-full h-12 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-semibold text-base shadow-lg hover:shadow-xl transition-all duration-200"
+                  >
+                    Place Order
                   </Button>
                 </div>
               </CardContent>

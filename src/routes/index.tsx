@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../co
 import { ShoppingCart } from 'lucide-react'
 import { Link } from '@tanstack/react-router'
 import { useState, useEffect } from 'react'
-// import { v1ProductsGet, v1CartPost } from '@/services/api/gen'
+import { prodProductsRetrieve, prodCartCreate } from '../services/api/gen/sdk.gen'
 
 export const Route = createFileRoute('/')({
   component: Home,
@@ -19,41 +19,10 @@ function Home() {
 
   const fetchProducts = async () => {
     try {
-      // const response = await v1ProductsGet()
-      // if (response.data) {
-      //   setProducts(response.data)
-      // }
-      const fallbackProducts = [
-        {
-          id: 1,
-          name: 'Margherita Supreme',
-          description: 'Fresh mozzarella, basil, and tomato sauce on our signature crust',
-          price: 18.99,
-          image: 'https://images.unsplash.com/photo-1604382354936-07c5d9983bd3?w=400&h=300&fit=crop',
-        },
-        {
-          id: 2,
-          name: 'Pepperoni Deluxe',
-          description: 'Premium pepperoni with extra cheese and our special spice blend',
-          price: 21.99,
-          image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400&h=300&fit=crop',
-        },
-        {
-          id: 3,
-          name: 'Veggie Garden',
-          description: 'Bell peppers, mushrooms, olives, onions with fresh herbs',
-          price: 19.99,
-          image: 'https://images.unsplash.com/photo-1604382354936-07c5d9983bd3?w=400&h=300&fit=crop',
-        },
-        {
-          id: 4,
-          name: 'Meat Lovers',
-          description: 'Pepperoni, sausage, bacon, and ham with extra cheese',
-          price: 24.99,
-          image: 'https://images.unsplash.com/photo-1571407970349-bc81e7e96d47?w=400&h=300&fit=crop',
-        }
-      ]
-      setProducts(fallbackProducts)
+      const response = await prodProductsRetrieve()
+      if (response.data) {
+        setProducts(response.data)
+      }
     } catch (error) {
       console.error('Failed to fetch products:', error)
     }
@@ -61,18 +30,16 @@ function Home() {
 
   const addToCart = async (product) => {
     try {
-      // const response = await v1CartPost({
-      //   body: {
-      //     product_id: product.id,
-      //     quantity: 1
-      //   }
-      // })
-      // if (response.data) {
-      //   alert('Product added to cart!')
-      // }
+      const response = await prodCartCreate({
+        body: {
+          product_id: product.id,
+          quantity: 1
+        }
+      })
       console.log('Adding to cart:', product)
-      alert(`${product.name} added to cart!`)
-      
+      if (response.data) {
+        alert(`${product.name} added to cart!`)
+      }
     } catch (error) {
       console.error('Failed add to cart:', error)
       alert('Failed to add product to cart')
@@ -108,7 +75,7 @@ function Home() {
       
       <section className="relative py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto text-center">
-          <h2 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 mt-4">
+          <h2 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
             RusticOven
             <span className="text-red-600"> Delivered Fresh</span>
           </h2>
@@ -116,22 +83,11 @@ function Home() {
             Handcrafted pizzas made with premium ingredients and baked to perfection. 
             Experience the taste that keeps customers coming back for more.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="bg-red-600 hover:bg-red-700">
-              Order Now
-            </Button>
-            <Button size="lg" variant="outline">
-              View Menu
-            </Button>
-          </div>
         </div>
       </section>
 
       <section id="menu" className="py-3 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-12">
-            <h3 className="text-4xl font-bold text-gray-900 mb-4">Our Signature Pizzas</h3>
-          </div>
           
           {products.length === 0 ? (
             <div className="text-center py-16">
